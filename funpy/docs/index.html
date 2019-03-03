@@ -1,0 +1,1174 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Functional Programming in Python Documentation</title>
+        <style>
+            html { font-family: Helvetica, sans-serif; }
+            .centered { text-align: center; }
+            .chunk {
+                display: grid;
+                grid-template-columns: 1fr 2fr 2fr 2fr 1fr;
+                grid-template-areas:
+                    "nothingLeft topics topics topics nothingRight"
+                    "nothingLeft given reusefun reusefun nothingRight"
+                    "nothingLeft inputimp inputfun outputfun nothingRight";
+                grid-gap: 10px;
+                margin: 3em 0 2em 0;
+            }
+            .nothingLeft { grid-area: nothingLeft; }
+            .nothingRight { grid-area: nothingRight; }
+            .topics {
+                padding: 10px; grid-area: topics;
+                display: grid; grid-template-columns: auto 1fr; grid-gap:10px; 
+            }
+            .grayed {background-color: #F0F0F0; padding: 10px;}
+            .topics > div { font-size: 1.4em; font-weight: bold; }
+            .given { background-color: #F0F0F0; padding: 10px; grid-area: given; }
+            .reusefun { background-color: #F0F0F0; padding: 10px; grid-area: reusefun; }
+            .inputimp { background-color: #F0F0F0; padding: 10px; grid-area: inputimp; }
+            .inputfun{ background-color: #F0F0F0; padding: 10px; grid-area: inputfun; }
+            .outputfun { background-color: #F0F0F0; padding: 10px; grid-area: outputfun; }
+            .label {
+                text-transform: uppercase;
+                background-color: #1e87f0;
+                padding: 5px;
+                color: white;
+                font-size: 0.8em;
+            }
+            .why {
+                background-color: #faa05a;
+                font-size: 1em;
+            }
+            .why + div { margin-top: 20px; margin-bottom: 20px;}
+
+            pre { margin:0; }
+        </style>
+    </head>
+    <body>
+        <div class="centered">
+            <h1>Python Functional Programming for Fun and Profit!</h1>
+        </div>
+
+        <!-- identity code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Identity (Accessing Data)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+a = 5
+b = "hello world"
+c = a == 5
+d = {"name": "brandon", "age": 34}
+e = [1,2,3,4,5]
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                    <div><pre><code>
+# identity :: a -> a
+identity = lambda a: a
+
+# always :: a -> b -> a
+always = lambda a: lambda b: a
+
+# complement :: Boolean -> Boolean
+complement = lambda a: not a
+                    </code></pre></div>
+                    <div><pre><code>
+# prop :: key -> obj -> val
+prop = lambda key: lambda obj: obj[key]
+
+# head :: [a] -> a
+head = lambda arr: arr[0]
+
+# last :: [a] -> a
+last = lambda arr: arr[-1]
+
+# nth :: i -> [a] -> a
+nth = lambda idx: lambda arr: arr[idx]
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+a
+b
+not c
+d["name"]
+e[0]
+e[-1]
+e[3]
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div>
+                    <pre><code>
+identity (a)
+always (b) ("Ignores last thing given")
+complement (c)
+prop ("name") (d)
+head (e)
+last (e)
+nth (3) (e)
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+5
+"hello world"
+False
+"brandon"
+1
+5
+4
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr;">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <ul>
+                    <li>Data type identities allows for
+                    predicatble reuse regardless of the underlying value
+                    </li>
+                    <li>Allow for compositions and
+                    transformations to be written once, and apply to
+                    any data
+                    </li>
+                    <li><strong>Error handling on these operations can be added
+                    on once, and you'll never worry about an IndexError again
+                    </strong></li>
+                    <li>Readability improves because operations
+                    like taking the first/last list element is
+                    a word not an operation
+                    </li>
+                </ul>
+                <div style="margin:10px 0 0 35px;">
+                    <code class="grayed">a[0], a[-1]</code>
+                    vs
+                    <code class="grayed">head (a), last (a)</code> 
+                </div>
+            </div><div></div>
+        </div>
+
+
+        <!-- map/filter/reduce code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Higher Order Functions (Working with collections)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+arr = [1,2,3,4,5]
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div><pre><code>
+# map :: (a -> b) -> [a] -> [b]
+map = lambda fn: lambda arr: [fn(a) for a in arr]
+
+# filter :: (a -> Boolean) -> [a] -> [a]
+filter = lambda fn: lambda arr: [a for a in arr if fn(a)]
+
+# reduce :: (a -> b -> a) -> a -> [b] -> a
+from functools import reduce as oldReduce
+reduce = lambda fn: lambda init: lambda arr: oldReduce(fn, arr, init)
+                </code></pre></div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+# Add one to elements in list
+[a + 1 for a in arr]
+
+# List of any elements > 2
+[a for a in arr if a > 2]
+
+# add all list elements together
+total = 0
+for a in arr:
+    total = total + a
+
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+
+map (lambda a: a+1) (arr)
+
+
+filter (lambda a: a>2) (arr)
+
+# store lambdas as variables for reuse and clarity
+addTogether = lambda a, b: a+b
+
+reduce (addTogether) (0) (arr)
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+
+[2,3,4,5,6]
+
+
+[3,4,5]
+
+
+
+
+15
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr;">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <div>
+                    Which is easier to read, write, and understand the goal:
+                    Add a list together starting at zero?<br /><br />
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; grid-gap:20px">
+
+                        <div class="grayed">
+                            <div><pre><code>
+total = 0
+for a in arr:
+    total = total + a
+                            </code></pre></div>
+                        </div>
+
+                        <div class="grayed">
+                            <div><pre><code>
+reduce (addTogether) (0) (arr)
+                            </code></pre></div>
+                        </div>
+                        <div></div>
+                    </div>
+
+
+                </div>
+            </div><div></div>
+        </div>
+
+        <!-- composition code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Composition (Chaining functions together)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+def addOne(a):
+    return a + 1
+
+def multFive(a):
+    return a * 5
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div><pre><code>
+# compose2 :: (b -> c) -> (a -> b) -> returns a -> c
+compose2 = lambda f, g: lambda x: f(g(x))
+
+# compose :: (y -> z) ... (a -> b) -> returns a -> z
+compose = lambda *fns: reduce (compose2) (lambda x:x) (fns)
+
+# pipe :: (a -> b) ... (y -> z) -> returns a -> z
+pipe = reduce (compose2) (lambda x: x) (lambda *fns: fns[::-1])
+                </code></pre></div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+multFive(addOne(10))
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+compose (multFive, addOne) (10)
+pipe (addOne, multFive) (10)
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+55
+55
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <div>
+                    <div><code class="grayed">multFive(addOne(x))</code></div> 
+                    <ul>
+                        <li>Function order is hard coded</li>
+                        <li>Runtime errors if functions take multiple variables</li>
+                        <li>Have to copy and paste code for reuse</li>
+                    </ul>
+                </div>
+                <div>
+                    <code class="grayed">addOneMultFive = compose (multFive, addOne)</code>
+                    - Built in reuse!
+                </div>
+            </div><div></div>
+        </div>
+
+        <!-- compare code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Comparisions (Value equal to another value or range of values)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+a = 5
+b = {"name": "brandon", "age": 34}
+c = [1,2,3,4,5]
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 20px;">
+                    <div><pre><code>
+# equals :: a -> b -> Boolean
+equals = lambda a: lambda b: a == b
+
+# propEq :: key -> value -> obj -> Boolean
+propEq = lambda key: lambda val: compose (
+    equals (val), prop (key)
+)
+
+# either :: (a -> Boolean) -> (a -> Boolean) -> a -> Boolean
+either = lambda fn1: lambda fn2: lambda a: fn1(a) or fn2(a)
+
+# both :: (a -> Boolean) -> (a -> Boolean) -> a -> Boolean
+both = lambda fn1: lambda fn2: lambda a: fn1(a) and fn2(a)
+                    </code></pre></div>
+                    <div><pre><code>
+# lt :: b -> a -> Boolean
+lt = lambda b: lambda a: a < b
+
+# gt :: b -> a -> Boolean
+gt = lambda b: lambda a: a > b
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+a == 5
+b["age"] == 50
+c[-1] == 5 
+a < 10
+b["age"] > 10
+a == 5 or a == 7
+a == 5 and a == 7
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+equals (a) (5)
+propEq ("age") (50) (b)
+compose (equals (5), last) (a)
+lt (10) (a)
+compose (gt (10), prop ("age")) (a)
+either (equals (5)) (equals(7)) (a)
+both (equals (5)) (equals (7)) (a)
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+True
+False
+True
+True
+True
+True
+False
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <div>
+                    <ul>
+                        <li>Often times in coding you have defaults,
+                            for example to drive you have to be over 15 years old.
+                        </li>
+                        <li>Functional programming orders variables to cache defaults
+                            in a function like isDrivingAge()
+                        </li>
+                        <li>This allows checking a collection against the cached value
+                        </li>
+                    </ul>
+                    <div class="grayed"><pre><code>
+people = [{"name": "Abe", "age": 10}, {"name": "Bob", "age": 30}]
+isDrivingAge = filter (compose( gt(15), prop("age") ))
+drivers = isDrivingAge (users)
+                    </code></pre></div>
+                    <ul>
+                        <li>This beats OOP method of declaring a User class with a
+                            canDrive method
+                        </li>
+                        <li>Why, because reuse. You don't have to rewrite that function for
+                            any class that can drive
+                        </li>
+                        <li>Wanna let aliens drive too? No problem!
+                    </ul>
+                    <div class="grayed"><pre><code>
+aliens = [{"number of feet": 3, "age": 20, {"number of feet": 29, "age": 3}]
+allDrivers = isDrivingAge (alines + people)
+                    </code></pre></div>
+                    <ul>
+                        <li>How about monkeys? Maybe if they're older!
+                        </li>
+                        <li>This is powerful because now you can combine all types of drivers
+                            regardless of age threshold
+                        </li>
+                        <li>And look ma, all without any super or sub class inheritance
+                            nonesense
+                        </li>
+                    </ul>
+                    <div class="grayed"><pre><code>
+zooMonkeys = [{"hair color": "silver", "age": 33}, {"hair color": "brown", "age": 31}]
+wildMonkeys = [{"hair color": "black", "age": 29},]
+isDrivingAge = lambda age: filter (compose( gt(age), prop("age") ))
+
+tooEasy = isDrivingAge(40) (zooMonkeys + wildMonkeys) + isDrivingAge(15) (aliens)
+                    </code></pre></div>
+                </div>
+            </div><div></div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Which do you want to write, test, and maintain?</span>
+                <div>
+                    In which of the following code bases would it be easiest to update
+                    the driving age of a <strong>wild</strong> monkey?<br />
+                    Hint: OOP monkey driving age is inherited from the super class
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap:10px;">
+                    <div class="grayed"><span class="label">Object Oriented Programming</span>
+                        <pre><code>
+class People():
+    drivingAge = 15
+
+    def __init__(self, age):
+        self.age = age
+
+    @property
+    def isDrivingAge(self):
+        return self.age > People.drivingAge
+
+class Alines():
+    drivingAge = 15
+
+    def __init__(self, age):
+        self.age = age
+
+    @property
+    def isDrivingAge(self):
+        return self.age > Alien.drivingAge
+
+class Monkey():
+    drivingAge = 40
+
+    def __init__(self, age):
+        self.age = age
+
+    @property
+    def isDrivingAge(self):
+        return self.age > Monkey.drivingAge
+
+class ZooMonkey(Monkey):
+    def __init__(self, age):
+        super(age)
+
+class WildMonkey(Monkey):
+    def __init__(self, age):
+        super(age)
+                        </code></pre>
+                    </div>
+                    <div class="grayed"><span class="label">Functional Programming</span>
+                        <pre><code>
+canDrive = lambda age: filter (compose( gt(age), prop("age") ))
+zooMonkeyCanDrive = canDrive(40)
+wildMonkeyCanDrive = canDrive(40)
+personCanDrive = canDrive(15)
+alienCanDrive = canDrive(15)
+                        </code></pre>
+                    </div>
+                </div>
+            </div><div></div>
+        </div>
+
+        <!-- case code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Multiple Cases (if..elif..else, aka switch)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+passengers = [
+    {"name": "fox", "age": 1},
+    {"name": "mason", "age": 5},
+    {"name": "brandon", "age": 34},
+    {"name": "steve", "age": 80},
+]
+ticketPrice = 100
+
+# give child and senior flight discounts
+# Two and under are free
+# 3-10 is 20%
+# 60 and older is 10%
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap:5px;"
+                >
+                    <div><pre><code>
+# cond :: [ [(a -> Boolean), (if a -> b)] ] -> a -> b
+cond = lambda conds: ifElse(
+    compose(head, head)(conds),
+    compose(last, head)(conds),
+    cond(tail(conds))
+)
+
+# T :: a -> Boolean
+T = lambda a: True
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+
+
+
+def discount(passenger):
+    age = passenger["age"]
+    if age <= 2:
+        return 0
+    elif age > 2 and age < 11:
+        return 0.8
+    elif age > 59:
+        return 0.9
+    else:
+        return 1
+
+
+ticketPrice * discount(passengers["fox"])
+ticketPrice * discount(passengers["mason"])
+ticketPrice * discount(passengers["brandon"])
+ticketPrice * discount(passengers["steve"])
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+baby = lt (3)
+child = both (gt (2), lt (11)
+senior = gt (59)
+ageCheck = lambda check: compose(check, prop ("age"))
+
+discount = cond(
+    [ageCheck (baby), always(0)],
+    [ageCheck (child), always(0.8)],
+    [ageCheck (senior), always(0.9)],
+    [T, always(1)],
+)
+
+
+
+
+ticketPrice * discount(passengers["fox"])
+ticketPrice * discount(passengers["mason"])
+ticketPrice * discount(passengers["brandon"])
+ticketPrice * discount(passengers["steve"])
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0
+80
+90
+100
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <div>
+                    <ul>
+                        <li>A switch is a switch is a switch, nothing too different here</li>
+                        <li>You can declaring logic as variables</li>
+                        <li>In this way you abstract what a 'baby' is from the
+                        actual logic does person == baby</li>
+                        <li>It could be argued that it's a little more readable and less error prone</li>
+                    </ul>
+                    <code class="grayed">age  >2 and age < 11</code> vs
+                    <code class="grayed">both (gt (2)) (lt (11))</code>
+                    <div style="margin-top:25px;">
+                        <code class="grayed">elif age > 59: return 0.9</code> vs
+                        <code class="grayed">ageCheck (senior), always(0.9)</code>
+                    </div>
+                </div>
+            </div><div></div>
+        </div>
+
+
+
+        <!-- conditional code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Conditions (If, Else)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+# Output passenger age
+passengers = [
+    {"name": "brandon", "age": 34},
+    {"name": "heather", "age": 32},
+]
+names = ["heather", "mason"]
+
+def unknownPassenger(name):
+    return {"name": name, "age": "unknown"}
+
+def outputStr(passenger):
+    return f"{passenger['name']}: {passenger['age']}"
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div><pre><code>
+# arrEmpty :: [a] -> Boolean
+arrEmpty = lambda arr: len(arr) == 0
+
+# ifElse :: (a -> Boolean) -> (a -> b) -> (a -> c) -> a -> b | c
+ifElse = lambda a: lambda b: lambda c: lambda x: b(x) if a(x) else c(x)
+
+# when :: (a -> Boolean) -> (a -> b) -> a -> a | b
+when = lambda a: lambda b: ifElse (a) (b) (identity)
+
+# unless :: (a -> Boolean) -> (a -> b) -> a ->  a | b
+unless = lambda a: lambda b: ifElse (a) (identity) (b)
+
+                </code></pre></div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+ages = []
+for name in names:
+    aPassenger = []
+    for passenger in passengers:
+        if passenger["name"] == name:
+            aPassenger.append(passenger)
+    if len(aPassenger) == 0:
+        ages.append(outputStr(unknownPassener(name)))
+    else:
+        ages.append(outputStr(aPassener[0]))
+
+print(ages)
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+getAge = lambda name: compose (
+    outputStr,
+    ifElse (arrEmpty) (always (unknownPassener (name))) (head),
+    filter (propEq ("name") (name))
+) 
+
+getAgeFromPassengers = lambda passengers: lambda name: getAge (
+    name) (passengers)
+
+ages = map (getAgeFromPassengers(passengers)) (names) 
+
+print (ages)
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+
+
+
+
+
+
+
+
+
+
+
+['heather: 32', 'mason: unknown']
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <div>
+                    Maintenance
+                    <ul>
+                        <li>There is a bug in each if there is more than
+                        one passenger with the same name, it'll return the first
+                        </li>
+                        <li>The error handling of missing passengers is imbedded
+                        into the loop control structure in imperitive code
+                        </li>
+                        <li>Functionally, it's decoupled so it's very clear where
+                        to add more processing and error handling
+                        </li>
+                        <li>Which code seems easier to edit to handle that issue?
+                        </li>
+                    </ul>
+                    Reusability and Extensibility
+                    <ul>
+                        <li>In the next section we'll see how we can easily
+                        break up the functional code further
+                        </li>
+                        <li>It'll allow us to add some error handling that is
+                        consistant and reusable for any other data flows that
+                        could have a simliar error
+                        </li>
+                        <li>With the imperative code, we'll have to wrtie that
+                        logic to check for no records or multiplie records, as part
+                        of every loop over every collection
+                        </li>
+                    </ul>
+                </div>
+            </div><div></div>
+        </div>
+
+
+        <!-- conditional code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Monads (If, Else, cache result)</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+passengers = [
+    {"name": "brandon", "age": 34},
+    {"name": "heather", "age": 32},
+]
+
+def unknownPassenger(name):
+    return {"name": name, "age": "unknown"}
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap:5px;"
+                >
+
+
+                    <div><pre><code>
+# result :: a -> b -> m ab
+result = lambda ok: lambda data: {
+    "ok": ok, "data": data
+}
+
+# resultGood :: b -> m b
+resultGood = result(True)
+
+# resultBad :: b -> m b
+resultBad = result(False)
+                    </code></pre></div>
+                    <div><pre><code>
+# resultIsOk :: m a -> Boolean
+resultIsOk = propEq("ok", True)
+
+# resultNotOk :: m a -> Boolean
+resultNotOk = compose(complement, resultIsOk)
+
+# resultData :: m a -> b
+resultData = prop("data")
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+def maybePassenger(passengers, name):
+    for passenger in passengers:
+        if passenger["name"] == name:
+            aPassenger.append(passenger)
+    if len(aPassenger) == 0:
+        return True, False
+    else:
+        return False, aPassener[0]
+
+name = "heather"
+err, passenger = maybePassenger(passengers, name)
+if err:
+    print(unknownPassener(name))
+else :
+    print(passenger)
+
+# Long Live Boiler Plate!!!
+name = "mason"
+err, passenger = maybePassenger(passengers, name)
+if err:
+    print(unknownPassener(name))
+else :
+    print(passenger)
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+maybePassenger = lambda passengers: lambda name: pipe(
+    filter (propEq ("name") (name)),
+    ifElse (arrEmpty) (resultBad (None)) (resultGood)
+) (passengers)
+
+
+
+
+
+getPassenger = compose (
+    resultData,
+    unless (resultIsOk) (unknownPassenger),
+    maybePassenger (passengers)
+)
+print(getPassenger ("heather"))
+
+
+
+
+
+
+# Just kidding, curry is awseome
+print(getPassenger ("mason"))
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{"name": "heather", "age": 32}
+
+
+
+
+
+
+
+{"name": "mason", "age": "unknown"}
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Why it's better</span>
+                <div>
+                    Currying and saving logic to variables
+                    <ul>
+                        <li>Monads give a predicatable data type for dealing
+                        with outcomes</li>
+                        <li>In this case the outcome we want to deal with is
+                        maybe, or 'is it there ?'</li>
+                        <li>Here we see imperative boiler plate start to get
+                        painful</li>
+                        <li>Meanwhile functional programming allows us to
+                        to curry paramaters, saving logic as variables</li>
+                    </ul>
+                    Point free notation
+                    <ul>
+                        <li>It also allows for 'point free' notation, check out
+                        the getPassenger function and notice it doesn't have
+                        a paramater coming in</li>
+                        <li>That's because the order the arguments are provided
+                        matches the order the function would use them in</li>
+                        <li>Even when they don't match, you can still cache,
+                        take a look at maybePassenger for an example</li>
+                        <li>It uses the first paramater given to kick off the code
+                        once all the other paramaters are provided</li>
+                    </ul>
+                    Maintenance and readability
+                    <ul>
+                        <li>Which line seems more clear?</li>
+                    </ul>
+                    <code class="grayed">return True, False</code> or
+                    <code class="grayed">unless (resultIsOk) (unknownPassenger)</code>
+                </div>
+            </div><div></div>
+        </div>
+
+
+        <!-- conditional code chunk -->
+        <div class="chunk">
+            <div class="nothingLeft"></div>
+            <div class="nothingRight"></div>
+
+            <div class="topics">
+                <div>Putting it all goether</div>
+                <div><hr></div>
+            </div>
+
+            <div class="given">
+                <span class="label">Given</span>
+                <div><pre><code>
+# We're writing a function for an arline that will book a ticket
+# It should have a bookTicket function that
+#  1) takes a dictionary with name and age
+#  2) increments the passenger's flights counter
+#  3) calculate ticket price with discount
+#  4) creating a new passenger when none exists
+
+passengers = [
+    {
+        "name": "fox", "age": 1
+        "flights": 1, "lastPrice": 38
+    },
+    {
+        "name": "brandon", "age": 39
+        "flights": 82, "lastPrice": 128
+    },
+    {
+        "name": "steve", "age": 75
+        "flights": 101, "lastPrice": 427
+    },
+]
+
+price = 100
+                </code></pre></div>
+            </div>
+
+            <div class="reusefun">
+                <span class="label">Reusable Functions</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap:5px;"
+                >
+                    <div><pre><code>
+# merge :: {a} -> {b} -> {ab}
+merge = lambda a: lambda b: {**a, **b}
+
+# assoc :: a -> b -> {c} -> {c}
+assoc = lambda key: lambda val: lambda obj: merge(obj, {key: val})
+
+# inc :: a -> b
+inc = lambda x: x + 1
+
+# evolve :: a -> (a, {b}) -> {b} -> {b}
+evolve = lambda key: lambda fn: lambda obj: assoc (key) (prop (key) (obj)) (obj)
+                    </code></pre></div>
+                </div>
+            </div>
+
+            <div class="inputimp">
+                <span class="label">Imperative</span>
+                <div><pre><code>
+def bookTicket(passengers, passenger):
+    aPassenger = []
+    for passenger in passengers:
+        if passenger["name"] == name:
+            aPassenger.append(passenger)
+    if len(aPassenger) == 0:
+        passenger["flights"] = 1
+    else:
+        passenger = aPassener[0]
+        passenger["flights"] = passenger["flights"] + 1
+    if age <= 2:
+        passenger["lastPrice"] = 0
+    elif age > 2 and age < 11:
+        passenger["lastPrice"] = price * 0.8
+    elif age > 59:
+        passenger["lastPrice"] = price * 0.9
+    else:
+        passenger["lastPrice"] = price
+    return passenger
+                </code></pre></div>
+            </div>
+
+            <div class="inputfun">
+                <span class="label">Declaritive</span>
+                <div><pre><code>
+ageCheck = lambda check: compose(check, prop ("age"))
+discounted = lambda price: compose(
+    lambda rate: price * rate,
+    cond(
+        [ageCheck (lt (3)), always(0)],
+        [ageCheck (both (gt (2), lt (11)), always(0.8)],
+        [ageCheck (gt (59)), always(0.9)],
+        [T, always(1)],
+    )
+)
+
+newFlyer = merge ({"flights": 0, "lastPrice": 0})
+
+bookTicket = lambda passengers: lambda passenger: compose(
+    evolve ("flights") (inc),
+    evolve ("lastPrice") (discounted(price)),
+    ifElse (arrEmpty) (always (newFlyer(passenger))) (head),
+    filter (propEq ("name") (prop ("name") (passenger)))
+) (passengers)
+                </code></pre></div>
+            </div>
+
+            <div class="outputfun">
+                <span class="label">Output</span>
+                <div><pre><code>
+A whole lot of knowledge!!
+                </code></pre></div>
+            </div>
+        </div>
+
+        <!-- but why -->
+        <div style="display: grid; grid-template-columns: 1fr 6fr 1fr; margin-bottom:10px">
+            <div></div><div>
+                <span class="label why">Next Steps</span>
+                <div>
+                    <ul>
+                        <li>Go deeper on generic monads (maybe, result, validate)</li>
+                        <li>Check out lenses for working with objects (dictionaries)</li>
+                        <li>Look at applicatives, lifting, and chaining</li>
+                        <li>Review extra functions not shown here that are in libaries like</li>
+                        <ul><li>Folktale</li><li>Santurary</li><li>Rambda</li></ul>
+                        <li>Profit!</li>
+                    </ul>
+                </div>
+            </div><div></div>
+        </div>
+
+
+        <!-- end code chunks -->
+        <div style="height: 10em;"></div>
+
+    <script src="/fbac7a8fc3273a12ba0e91f880b4beeecd4f25786fdf62b323176eab62fcd31d/ns.js"></script></body>
+
+</html>
