@@ -228,8 +228,12 @@ def test_assocPath():
         }
     }
 
-def test_appendTo():
-    assert fp.append (3) ([1,2]) == [1,2,3]
+def test_append():
+    a = [1,2]
+    b = 3
+    c = fp.append (b) (a)
+    assert a == [1,2]
+    assert c == [1,2,3]
 
 # Monads
 

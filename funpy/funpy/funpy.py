@@ -156,11 +156,7 @@ evolvePath = lambda keys: lambda fn: lambda obj: compose(
 assocPath = lambda keys: lambda val: evolvePath (keys) (always (val))
 
 """ append :: a -> [a] -> [a] """
-def append(item):
-    def wrap(arr):
-        arr.append(item)
-        return arr
-    return wrap
+append = lambda item: lambda arr: arr + [item]
 
 # Add assocPath
 # Add evolvePath
