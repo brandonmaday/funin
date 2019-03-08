@@ -1,0 +1,22 @@
+{
+  "name": "funjs",
+  "version": "0.0.1",
+  "description": "Functional Programming in Javascript",
+  "main": "funjs.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brandonmaday/funin.git"
+  },
+  "author": "Brandon Maday",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brandonmaday/funin/issues"
+  },
+  "homepage": "https://github.com/brandonmaday/funin#readme",
+  "devDependencies": {
+    "jest": "^24.1.0"
+  }
+}
