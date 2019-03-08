@@ -158,9 +158,6 @@ assocPath = lambda keys: lambda val: evolvePath (keys) (always (val))
 """ append :: a -> [a] -> [a] """
 append = lambda item: lambda arr: arr + [item]
 
-# Add assocPath
-# Add evolvePath
-
 # Monads (Generic)
 """ result :: (a -> Boolean) -> a -> m a """
 result = lambda fn: lambda data: {"okFn": fn, "ok": fn (data), "data": data}
