@@ -42,8 +42,14 @@ F.reduce = fn => init => arr => arr.reduce(fn, init);
 // compose :: ((y -> z) ... (a -> b)) -> a -> z
 F.compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x);
 
+F.composeP = (...fns) => x =>
+    fns.reduceRight((v, f) => Promise.resolve(v).then(f), x);
+
 // pipe :: ((a -> b) ... (y -> z)) -> a -> z
 F.pipe = (...fns) => x => fns.reduce((v, f) => f(v), x);
+
+F.pipeP = (...fns) => x =>
+    fns.reduce((v, f) => Promise.resolve(v).then(f), x);
 
 // Conditions
 // ifElse :: ((a -> Boolean), (a -> b), (a -> c)) -> a -> b | c
