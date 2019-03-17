@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/brandonmaday/funin#readme",
   "devDependencies": {
-    "jest": "^24.1.0"
+    "jest": "^24.5.0"
   }
 }

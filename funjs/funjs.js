@@ -177,7 +177,7 @@ F.append = item => arr => [...arr, item];
 
 // Monads (Generic)
 // result :: (a -> Boolean) -> a -> m a
-F.result = fn => data => ({okFn: fn, ok: fn (data), data});
+F.result = fn => data => ({ok: fn (data), data});
 
 // left :: a -> m a
 F.left = F.result (F.F)
@@ -198,7 +198,7 @@ F.flatMap = F.map (F.join);
 // mapM :: (a -> b -> c) -> m a -> m (b -> c)
 F.mapM = fn => m => F.when (
     F.resultOk,
-    F.compose (F.result (F.prop ("okFn") (m)), fn, F.join)
+    F.compose (F.flip (F.assoc ("data")) (m), fn, F.join)
 ) (m)
 
 // chain :: (a -> m b) -> m a -> m b

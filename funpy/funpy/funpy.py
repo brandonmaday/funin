@@ -160,7 +160,13 @@ append = lambda item: lambda arr: arr + [item]
 
 # Monads (Generic)
 """ result :: (a -> Boolean) -> a -> m a """
-result = lambda fn: lambda data: {"okFn": fn, "ok": fn (data), "data": data}
+result = lambda fn: lambda data: {"ok": fn (data), "data": data}
+
+""" left :: a -> m a """
+left = result (F)
+
+""" right :: a -> m a """
+right = result (T)
 
 """ resultOk :: m a -> Boolean """
 resultOk = propEq ("ok") (True)
@@ -175,7 +181,7 @@ flatMap = map (join)
 """ mapM :: (a -> b -> c) -> m a -> m (b -> c) """
 mapM = lambda fn: lambda m: when(
     resultOk,
-    compose(result (prop ("okFn") (m)), fn, join)
+    compose (flip (assoc ("data")) (m), fn, join)
 )(m)
 
 """ chain :: (a -> m b) -> m a -> m b """
@@ -201,12 +207,6 @@ onMaybe = lambda pred, bad, good: compose(
 )
 
 # Monads (Either)
-""" left :: a -> m a """
-left = result (F)
-
-""" right :: a -> m a """
-right = result (T)
-
 """ either :: ((a -> c), (b -> c)) -> m a|b -> c """
 either = lambda notOk, ok: lambda m: compose(
     ifElse(always (resultOk (m)), ok, notOk), join
