@@ -258,4 +258,42 @@ F.validate = data => F.pipe (
     F.ifElse (F.emptyList, F.compose(F.right, F.always (data)), F.left)
 )
 
+// AJAX
+// jaxCfg :: a -> b -> ab
+F.jaxCfg = method => data => ({
+    method,
+    body: JSON.stringify(data),
+    cache: "no-cache",
+    headers: new Headers({"content-type": "application/json"}),
+    credentials: "same-origin",
+});
+
+// jaxResult :: a -> m a
+F.jaxResult = F.ifElse(
+    F.resultOk,
+    r => r.json().catch(_ => F.left("JSON Error")),
+    F.compose(F.left, F.prop("statusText")),
+);
+
+// jax :: a -> b -> c -> m abc
+F.jax = method => uri => F.composeP(
+    F.jaxResult,
+    data => fetch(uri, jaxCfg (method) (data))
+)
+
+// jaxNoData :: a -> b -> m ab
+F.jaxNoData = method => uri => F.jax (method) (uri) (undefined);
+
+// jaxGet :: a -> m a
+F.jaxGet = F.jaxNoData ("GET");
+
+// jaxDelete :: a -> m a
+F.jaxDelete = F.jaxNoData ("DELETE");
+
+// jaxPost :: a -> m a
+F.jaxPost = F.jaxNoData ("POST");
+
+// jaxPut :: a -> m a
+F.jaxPut = F.jaxNoData ("PUT");
+
 try { exports.F = F; } catch {}
