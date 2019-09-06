@@ -96,17 +96,24 @@ def test_gte():
     assert fp.gte (10) (10) == True
     assert fp.gte (10) (15) == True
 
-def test_notEmptyList():
-    assert fp.notEmptyList ([]) == False
-    assert fp.notEmptyList (["a", 123]) == True
-    assert fp.notEmptyList ("cat") == False
-    assert fp.notEmptyList (None) == False
+def test_isList():
+    assert fp.isList ([]) == True
+    assert fp.isList (["a", 1, False]) == True
+    assert fp.isList ("cat") == False
+    assert fp.isList (None) == False
+    assert fp.isList (1) == False
 
 def emptyList():
     assert fp.emptyList ([]) == True
     assert fp.emptyList (["a", 123]) == False
     assert fp.emptyList ("cat") == False
     assert fp.emptyList (None) == False
+
+def test_notEmptyList():
+    assert fp.notEmptyList ([]) == False
+    assert fp.notEmptyList (["a", 123]) == True
+    assert fp.notEmptyList ("cat") == False
+    assert fp.notEmptyList (None) == False
 
 # Accessors
 def test_head():

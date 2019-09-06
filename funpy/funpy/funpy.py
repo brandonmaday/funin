@@ -41,7 +41,7 @@ reduce = lambda fn: lambda init: lambda arr: _reduce(fn, arr, init)
 """ compose2 :: ((b -> c), (a -> b)) -> a -> c """
 compose2 = lambda f, g: lambda x: f(g(x))
 
-initCompose = reduce (compose2) (lambda x: x)
+initCompose = reduce (compose2) (identity)
 
 """ compose :: ((y -> z) ... (a -> b)) -> a -> z """
 compose = lambda *fns: initCompose (fns)
@@ -80,7 +80,9 @@ lte = lambda a: eitherOr (equals (a)) (lt (a))
 """ gte :: a -> b -> Boolean """
 gte = lambda a: eitherOr (equals (a)) (gt (a))
 
+""" isList :: [a] -> Boolean """
 isList = compose(equals (list), type)
+
 """ notEmptyList :: [a] -> Boolean """
 notEmptyList = both (isList) (compose(gt (0), len))
 
