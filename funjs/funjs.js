@@ -278,7 +278,7 @@ F.jaxResult = F.ifElse(
 // jax :: a -> b -> c -> m abc
 F.jax = method => uri => F.composeP(
     F.jaxResult,
-    data => fetch(uri, jaxCfg (method) (data))
+    data => fetch(uri, F.jaxCfg (method) (data))
 )
 
 // jaxNoData :: a -> b -> m ab
@@ -291,9 +291,9 @@ F.jaxGet = F.jaxNoData ("GET");
 F.jaxDelete = F.jaxNoData ("DELETE");
 
 // jaxPost :: a -> m a
-F.jaxPost = F.jaxNoData ("POST");
+F.jaxPost = F.jax ("POST");
 
 // jaxPut :: a -> m a
-F.jaxPut = F.jaxNoData ("PUT");
+F.jaxPut = F.jax ("PUT");
 
 try { exports.F = F; } catch {}
