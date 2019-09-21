@@ -293,6 +293,19 @@ test("mapM", () => {
     expect(d.data).toEqual(null);
 });
 
+test("mapMLeft", () => {
+    const maybe = F.result (x => x != null)
+    makeBob = a => "bob"
+    a = maybe (10)
+    b = F.mapMLeft (makeBob) (a)
+    expect(b.ok).toEqual(true);
+    expect(b.data).toEqual(10);
+    const c = maybe (null);
+    const d = F.mapMLeft (makeBob) (c);
+    expect(d.ok).toEqual(false);
+    expect(d.data).toEqual("bob");
+});
+
 test("chain", () => {
     const maybe = F.result (x => x != null);
     const mult = a => b => F.result (F.T) (a*b);
@@ -304,6 +317,19 @@ test("chain", () => {
     const d = F.chain (mult (2)) (c)
     expect(d.ok).toEqual(false);
     expect(d.data).toEqual(null);
+});
+
+test("chainLeft", () => {
+    const maybe = F.result (x => x != null);
+    makeBob = a => ({ok: true, data: "bob"})
+    a = maybe (10)
+    b = F.chainLeft (makeBob) (a)
+    expect(b.ok).toEqual(true);
+    expect(b.data).toEqual(10);
+    c = maybe (null)
+    d = F.chainLeft (makeBob) (c)
+    expect(d.ok).toEqual(true);
+    expect(d.data).toEqual("bob");
 });
 
 test("ap", () => {

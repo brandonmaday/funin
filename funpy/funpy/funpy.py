@@ -214,6 +214,13 @@ either = lambda notOk, ok: lambda m: compose(
     ifElse(always (resultOk (m)), ok, notOk), join
 )(m)
 
+# Better Result mapping / chainning with Either
+""" mapMLeft :: (a -> b) -> m a -> m b """
+mapMLeft = lambda fn: either (compose (left, fn), right)
+
+""" chainLeft :: (a -> m b) -> m a -> m b """
+chainLeft = lambda fn: either (fn, right)
+
 # Monads (Validaion)
 """ check :: a -> (b -> Boolean) -> c -> abc """
 check = lambda p, fn, msg: {"p": p, "fn": fn, "msg": msg}

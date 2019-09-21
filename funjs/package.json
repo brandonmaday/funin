@@ -1,6 +1,6 @@
 {
   "name": "funjs",
-  "version": "0.0.1",
+  "version": "0.0.10",
   "description": "Functional Programming in Javascript",
   "main": "funjs.js",
   "scripts": {

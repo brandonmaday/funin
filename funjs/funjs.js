@@ -223,6 +223,14 @@ F.either = (notOk, ok) => m => F.compose (
     F.ifElse(F.always (F.resultOk (m)), ok, notOk), F.join
 ) (m)
 
+// Error handling Map and Chain with either
+
+// mapMLeft :: (a -> b) -> m a -> m b """
+F.mapMLeft = fn => F.either (F.compose (F.left, fn), F.right)
+
+// chainLeft :: (a -> m b) -> m a -> m b """
+F.chainLeft = fn => F.either (fn, F.right)
+
 // Monads (Maybe)
 // onMaybe :: ((a -> Boolean), (a -> b), (a -> c)) -> a -> m b|c
 F.onMaybe = (pred, bad, good) => F.compose (

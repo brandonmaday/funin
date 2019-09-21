@@ -280,6 +280,18 @@ def test_mapM():
     assert d["ok"] == False
     assert d["data"] == None
 
+def test_mapMLeft():
+    maybe = fp.result (lambda x: x is not None)
+    makeBob = lambda a: "bob"
+    a = maybe (10)
+    b = fp.mapMLeft (makeBob) (a)
+    assert b["ok"] == True
+    assert b["data"] == 10
+    c = maybe (None)
+    d = fp.mapMLeft (makeBob) (c)
+    assert d["ok"] == False
+    assert d["data"] == "bob"
+
 def test_chain():
     maybe = fp.result (lambda x: x is not None)
     mult = lambda a: lambda b: fp.result (fp.T) (a*b)
@@ -291,6 +303,18 @@ def test_chain():
     d = fp.chain (mult (2)) (c)
     assert d["ok"] == False
     assert d["data"] == None
+
+def test_chainLeft():
+    maybe = fp.result (lambda x: x is not None)
+    makeBob = lambda a: {"ok": True, "data": "bob"}
+    a = maybe (10)
+    b = fp.chainLeft (makeBob) (a)
+    assert b["ok"] == True
+    assert b["data"] == 10
+    c = maybe (None)
+    d = fp.chainLeft (makeBob) (c)
+    assert d["ok"] == True
+    assert d["data"] == "bob"
 
 def test_ap():
     maybe = fp.result (lambda x: x is not None)
