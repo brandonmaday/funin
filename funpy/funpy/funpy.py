@@ -48,6 +48,10 @@ def either (badFn: Unary, goodFn: Unary) -> Callable [[Result], Any]:
         return badFn (data) if res ["ok"] == False else goodFn (data)
     return wrap
 
+def orElse (fn: Unary) -> Callable [[Result], Any]:
+    return either (fn, identity)
+
+
 
 # HIGHER ORDER FUNCTIONS
 

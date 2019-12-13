@@ -20,6 +20,10 @@ def test_either ():
     assert F.either (add (1), add (2)) ({"ok": True, "data": 1}) == 3
     assert F.either (add (1), add (2)) ({"ok": False, "data": 1}) == 2
 
+def test_orElse ():
+    assert F.orElse (add (1)) ({"ok": True, "data": 1}) == 1
+    assert F.orElse (add (1)) ({"ok": False, "data": 1}) == 2
+
 def test_flip ():
     fn = lambda a: lambda b: f"{a} {b}"
     assert F.flip (fn) ("1") ("2") == "2 1"
