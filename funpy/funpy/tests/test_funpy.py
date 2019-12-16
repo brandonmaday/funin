@@ -142,3 +142,6 @@ def test_trampoline ():
     assert F.bounce (countdown) (19900) == 0
     assert F.bounce (countup) (0, 190000) == 190000
 
+def test_equals ():
+    assert F.equals (1) (1) == True
+    assert F.equals (1) ("1") == False

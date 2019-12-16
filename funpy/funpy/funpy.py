@@ -193,5 +193,14 @@ def bounce (fn):
     return wrap
 
 
+# COMPARISIONS
+
+
+def equals (a: Any) -> Callable [[Any], bool]:
+    def wrap (b: Any) -> bool:
+        return a == b
+    return wrap
+
+
 # TRANSDUCERS
 
