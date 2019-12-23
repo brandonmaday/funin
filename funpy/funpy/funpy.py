@@ -163,10 +163,10 @@ last = nth (-1)
 # SAFE ACCESS TO CREATE
 
 
-def evolve (key: Any) -> Callable [[Unary], Callable [[dict], dict]]:
+def evolve (key: Any) -> Callable [[Unary], Callable [[dict], Result]]:
     update = flip (assoc (key))
-    def withFn (fn: Unary) -> Callable [[dict], dict]:
-        def wrap (obj: dict) -> dict:
+    def withFn (fn: Unary) -> Callable [[dict], Result]:
+        def wrap (obj: dict) -> Result:
             return compose (map (update (obj)), map (fn), prop (key)) (obj)
         return wrap
     return withFn
