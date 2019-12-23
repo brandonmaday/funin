@@ -98,9 +98,7 @@ def map (fn: Unary) -> Callable [[Mapable], Mapable]:
     return wrap
 
 def chain (fn: Callable [[Any], Result]) -> Callable [[Result], Result]:
-    def wrap (res: Result) -> Result:
-        return either (left, fn) (res)
-    return wrap
+    return either (left, fn)
 
 def ap (fnInResult: Result) -> Callable [[Result], Result]:
     def wrap (param2InResult: Result) -> Result:
