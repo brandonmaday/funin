@@ -89,9 +89,7 @@ def _mapList (fn: Unary) -> Callable [[list], list]:
     return wrap
 
 def _mapResult (fn: Unary) -> Callable [[Result], Result]:
-    def wrap (res: Result) -> Result:
-        return either (left, compose (right, fn)) (res)
-    return wrap
+    return either (left, compose (right, fn))
 
 def map (fn: Unary) -> Callable [[Mapable], Mapable]:
     def wrap (mapable: Mapable) -> Mapable:
