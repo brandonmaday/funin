@@ -174,10 +174,12 @@ F.jaxCfg = method => data => ({
 });
 
 // jaxResult : ResponseResult [Json [Result]] -> Result
-F.jaxResult = F.either (
-    F.asyncCompose (F.left, r => r.statusText),
-    r => r.json().catch(_ => F.left ("JSON Error")),
-);
+F.jaxResult = r => {
+    if (r.ok == false) {
+        return F.asyncCompose (F.left, r => r.statusText) (r);
+    }
+    return r.json().catch(_ => F.left ("JSON Error"));
+}
 
 // jax : a -> b -> c -> Result
 F.jax = method => uri => F.asyncCompose (
