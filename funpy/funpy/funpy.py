@@ -1,202 +1,170 @@
-from typing import TypedDict, Any, Callable, Union
-
+from typing import NamedTuple, Any, Callable, List, Union, Dict
+from functools import reduce as _reduce
 
 # TYPES
 
+Unary = Callable[[Any], Any]
 
-class Result (TypedDict):
+class Result(NamedTuple):
+    """ The only Monad you'll ever need """
     ok: bool
     data: Any
 
-Unary = Callable [[Any], Any]
-
-Mapable = Union [list, Result]
-
-
-# IDENTITIES
-
-
-def identity (a: Any) -> Any:
-    return a
-
-def always (a: Any) -> Unary:
-    def wrap (b: Any) -> Any:
-        return a
-    return wrap
-
-F = always (False)
-T = always (True)
-
-
-# MONADS
-
-
-def result (fn: Callable [[Any], bool]) -> Callable [[Any], Result]:
-    def wrap (a: Any) -> Result:
-        return {"ok": fn (a), "data": a}
-    return wrap
-
-def join (res: Result) -> Any:
-    return res ["data"]
-
-left = result (F)
-right = result (T)
-
-def either (badFn: Unary, goodFn: Unary) -> Callable [[Result], Any]:
-    def wrap (res: Result) -> Any:
-        data = join (res)
-        return badFn (data) if res ["ok"] == False else goodFn (data)
-    return wrap
-
-def orElse (fn: Unary) -> Callable [[Result], Any]:
-    return either (fn, identity)
-
-
+Mappable = Union[List[Any], Result]
 
 # HIGHER ORDER FUNCTIONS
 
-
-flip = lambda fn: lambda a: lambda b: fn (b) (a)
-
-def filter (fn: [[Any], bool]) -> Callable [[list], list]:
-    def wrap (arr: list) -> list:
-        return [a for a in arr if fn (a)]
+def curry(fn):
+    """ Cache function arguments """
+    cache = []
+    arity = fn.__code__.co_argcount
+    def wrap(*args):
+        """ Checks if enough args and runs function """
+        new_cache = [*cache, *args]
+        if len(new_cache) >= arity:
+            return fn(*new_cache)
+        return lambda *more: wrap(*new_cache, *more)
     return wrap
 
-from functools import reduce as _reduce
-def reduce (fn: Callable [[Any, Any], Any]) -> Callable [
-    [Any], Callable [[list], Any]
-]:
-    def init (a: Any) -> Callable [[list], Any]:
-        def wrap (arr: list) -> Any:
-            return _reduce (fn, arr, a)
-        return wrap
-    return init
+@curry
+def flip(fn: Callable[[Any,Any], Any], a1: Any, a2: Any) -> Any:
+    return fn(a2, a1)
 
-def _compose2 (f: Unary, g: Unary) -> Unary:
-    def wrap (x: Any) -> Any:
-        return f (g (x))
-    return wrap
+@curry
+def filter(fn: Callable[[Any], bool], arr: List[Any]) -> List[Any]:
+    return [a for a in arr if fn(a)]
 
-def compose (*fns) -> Unary:
-    def wrap (a: Any) -> Any:
-        return reduce (_compose2) (identity) (fns) (a)
-    return wrap
+@curry
+def reduce(fn: Callable[[Any, Any], Any], default: Any, arr: List[Any]) -> Any:
+    return _reduce(fn, arr, default)
 
-def _mapList (fn: Unary) -> Callable [[list], list]:
-    def wrap (arr: list) -> list:
-        return [fn (a) for a in arr]
-    return wrap
+def compose(*fns: Callable) -> Callable [[Any], Any]:
+    return reduce(
+        lambda f, g: lambda x: f(g(x)),
+        lambda x: x,
+        fns
+    )
 
-def _mapResult (fn: Unary) -> Callable [[Result], Result]:
-    return either (left, compose (right, fn))
+# IDENTITY
 
-def map (fn: Unary) -> Callable [[Mapable], Mapable]:
-    def wrap (mapable: Mapable) -> Mapable:
-        mapFn = _mapList if isinstance (mapable, list) else _mapResult
-        return mapFn (fn) (mapable)
-    return wrap
+def identity(a: Any) -> Any:
+    return a
 
-def chain (fn: Callable [[Any], Result]) -> Callable [[Result], Result]:
-    return either (left, fn)
+@curry
+def always(a: Any, *ignore: Any) -> Any:
+    return a
 
-def ap (fnInResult: Result) -> Callable [[Result], Result]:
-    def wrap (param2InResult: Result) -> Result:
-        if fnInResult ["ok"] == False:
-            return fnInResult
-        fn = join (fnInResult)
-        return map (fn) (param2InResult)
-    return wrap
+# MONADS
 
-def liftA2 (
-    fn: Callable [[Any, Any], Any]
-) -> Callable [[Result], Callable [[Result], Result]]:
-    def wrapA (resultA: Result) -> Callable [[Result], Result]:
-        def wrapB (resultB: Result) -> Result:
-            a = map (fn) (resultA)
-            return ap (a) (resultB)
-        return wrapB
-    return wrapA
+def left(a: Any) -> Result:
+    """ A failed result """
+    return Result(False, a)
 
+def right(a: Any) -> Result:
+    """ A good result """
+    return Result(True, a)
+
+
+@curry
+def map_list(fn: Unary, arr: List[Any]) -> List[Any]:
+    return [fn(a) for a in arr]
+
+@curry
+def map_result(fn: Unary, result: Result) -> Result:
+    if result.ok == True:
+        return right(fn(result.data))
+    return result
+
+@curry
+def map(fn: Unary, mappable: Mappable) -> Mappable:
+    if isinstance(mappable, list):
+        return map_list(fn, mappable)
+    return map_result(fn, mappable)
+
+def chain(fn: Unary, result: Result) -> Any:
+    if result.ok == True:
+        return fn(result.data)
+    return result
+
+@curry
+def ap(fnInResult: Result, paramInResult: Result) -> Result:
+    """ A way to apply Results to a curried function """
+    if fnInResult.ok == False:
+        return fnInResult
+    return map(fnInResult.data, paramInResult)
+
+@curry
+def liftA2(fn: Callable[[Any, Any], Any], r1: Result, r2: Result) -> Result:
+    """ Map and Ap glued together """
+    return ap(map(fn, r1), r2)
+
+@curry
+def either(ifBad: Unary, ifGood: Unary, result: Result) -> Any:
+    if result.ok == False:
+        return ifBad(result.data)
+    return ifGood(result.data)
+
+@curry
+def or_else(fn: Unary, result: Result) -> Any:
+    if result.ok == False:
+        return fn(result.data)
+    return result.data
 
 # CREATORS
 
+@curry
+def merge(d1: Dict[Any,Any], d2: Dict[Any,Any]) -> Dict[Any,Any]:
+    return {**d1, **d2}
 
-def merge (a: dict) -> Callable [[dict], dict]:
-    def wrap (b: dict) -> dict:
-        return {**a, **b}
-    return wrap
-
-def assoc (key: Any) -> Callable [[Any], Callable [[dict], dict]]:
-    def wrap (val: Any) -> Callable [[dict], dict]:
-        return flip (merge) ({key: val})
-    return wrap
-
+@curry
+def assoc(key: Any, val: Any, d: Dict[Any,Any]) -> Dict[Any,Any]:
+    return merge(d, {key: val})
 
 # SAFE ACCESSORS
 
+@curry
+def prop(key: Any, d: Dict[Any,Any]) -> Result:
+    try:
+        return right(d[key])
+    except KeyError:
+        return left(key)
 
-def prop (key: Any) -> Callable [[dict], Result]:
-    def wrap (obj: dict) -> Result:
-        try:
-            return right (obj [key])
-        except KeyError:
-            return left (key)
-    return wrap
+@curry
+def tail(l: List[Any]) -> List[Any]:
+    return l[1:]
 
-def tail (arr: list) -> list:
-    return arr [1:]
+@curry
+def nth(i: int, l: List[Any]) -> Result:
+    try:
+        return right(l[i])
+    except IndexError:
+        return left(i)
 
-def nth (idx: int) -> Callable [[list], Result]:
-    def wrap (arr: list) -> Result:
-        try:
-            return right (arr [idx])
-        except IndexError:
-            return left (idx)
-    return wrap
-
-head = nth (0)
-
-last = nth (-1)
-
+head = nth(0)
+last = nth(-1)
 
 # SAFE ACCESS TO CREATE
 
-
-def evolve (key: Any) -> Callable [[Unary], Callable [[dict], Result]]:
-    update = flip (assoc (key))
-    def withFn (fn: Unary) -> Callable [[dict], Result]:
-        def wrap (obj: dict) -> Result:
-            return compose (map (update (obj)), map (fn), prop (key)) (obj)
-        return wrap
-    return withFn
-
+@curry
+def evolve(key: Any, fn: Unary, d: Dict[Any, Any]) -> Result:
+    return map(flip(assoc(key), d), map(fn, prop(key, d)))
 
 # TAIL RECURSION
 
+def tail_r(fn, *args, **kwargs):
+    """
+    Caches arguments from being applied to a function that calls itself
+    Returns a function that can be checked for 'callable' which takes no arguments
+    """
+    return lambda: fn(*args, **kwargs)
 
-def tailR (fn):
-    def wrap (*args, **kwargs):
-        return lambda: fn (*args, **kwargs)
-    return wrap
-
-def bounce (fn):
-    def wrap (*args, **kwargs):
-        result = fn (*args, **kwargs)
-        while (callable (result)):
-            result = result ()
-        return result
-    return wrap
-
-
-# COMPARISIONS
-
-
-def equals (a: Any) -> Callable [[Any], bool]:
-    def wrap (b: Any) -> bool:
-        return a == b
-    return wrap
-
-
-# TRANSDUCERS
-
+def bounce(fn, *args, **kwargs):
+    """
+    Applys initial arguments to a function that could return a tail_r function
+    Keeps calling tail_r functions until a non callable is returned
+    Prevents stack overflow
+    """
+    result = fn(*args, **kwargs)
+    while(callable(result)):
+        result = result()
+    return result
